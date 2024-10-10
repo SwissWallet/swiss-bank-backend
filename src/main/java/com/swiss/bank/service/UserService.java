@@ -1,6 +1,7 @@
 package com.swiss.bank.service;
 
 import com.swiss.bank.entity.User;
+import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.exception.UserUniqueViolationException;
 import com.swiss.bank.repository.IUserRepository;
 import com.swiss.bank.web.dto.UserCreateDto;
@@ -30,5 +31,13 @@ public class UserService {
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
         }
+    }
+
+    @Transactional
+    public User findById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
     }
 }
