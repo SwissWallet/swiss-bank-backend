@@ -1,10 +1,13 @@
 package com.swiss.bank.service;
 
 import com.swiss.bank.entity.User;
+import com.swiss.bank.exception.NewPasswordInvalidException;
 import com.swiss.bank.exception.ObjectNotFoundException;
+import com.swiss.bank.exception.PasswordInvalidException;
 import com.swiss.bank.exception.UserUniqueViolationException;
 import com.swiss.bank.repository.IUserRepository;
 import com.swiss.bank.web.dto.UserCreateDto;
+import com.swiss.bank.web.dto.UserPasswordChangeDto;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +48,25 @@ public class UserService {
     public void deleteUser(Long id){
         User user = findById(id);
         userRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+
+        if (user.getPassword() != passwordChangeDto.currentPassword()){
+            throw new PasswordInvalidException("The current password provided is invalid. Please try again");
+        }
+
+        if(!passwordChangeDto.newPassword().equals(passwordChangeDto.confirmPassword())){
+            throw new NewPasswordInvalidException("The new password provided is invalid. Please follow the password requirements.");
+        }
+
+        user.setPassword(passwordChangeDto.newPassword());
+        userRepository.save(user);
     }
 
 }

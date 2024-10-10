@@ -3,6 +3,7 @@ package com.swiss.bank.web.controller;
 import com.swiss.bank.entity.User;
 import com.swiss.bank.service.UserService;
 import com.swiss.bank.web.dto.UserCreateDto;
+import com.swiss.bank.web.dto.UserPasswordChangeDto;
 import com.swiss.bank.web.dto.UserResponseDto;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,13 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id){
         userService.deleteUser(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/password/{id}")
+    public ResponseEntity<Void> updateUserPassword(@RequestBody @Valid UserPasswordChangeDto passwordChangeDto,
+                                                   @PathVariable Long id){
+        userService.changeUserPassword(passwordChangeDto, id);
         return ResponseEntity.ok().build();
     }
 }
