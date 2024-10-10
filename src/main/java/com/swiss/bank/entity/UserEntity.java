@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.ROLE_CLIENT;
 
-    public User(Long id, String username, String name, String cpf, String phone, String password, Role role) {
+    public UserEntity(Long id, String username, String name, String cpf, String phone, String password, Role role) {
         this.id = id;
         this.username = username;
         this.name = name;
@@ -34,7 +34,7 @@ public class User {
         this.role = role;
     }
 
-    public User() {
+    public UserEntity() {
     }
 
     public Long getId() {

@@ -1,6 +1,6 @@
 package com.swiss.bank.service;
 
-import com.swiss.bank.entity.User;
+import com.swiss.bank.entity.UserEntity;
 import com.swiss.bank.exception.NewPasswordInvalidException;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.exception.PasswordInvalidException;
@@ -22,22 +22,22 @@ public class UserService {
     }
 
     @Transactional
-    public User saveUser(UserCreateDto dto){
+    public UserEntity saveUser(UserCreateDto dto){
         try{
-            User user = new User();
-            user.setName(dto.name());
-            user.setUsername(dto.username());
-            user.setCpf(dto.cpf());
-            user.setPhone(dto.phone());
-            user.setPassword(dto.password());
-            return userRepository.save(user);
+            UserEntity userEntity = new UserEntity();
+            userEntity.setName(dto.name());
+            userEntity.setUsername(dto.username());
+            userEntity.setCpf(dto.cpf());
+            userEntity.setPhone(dto.phone());
+            userEntity.setPassword(dto.password());
+            return userRepository.save(userEntity);
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
         }
     }
 
     @Transactional(readOnly = true)
-    public User findById(Long id){
+    public UserEntity findById(Long id){
         return userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
@@ -46,18 +46,18 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id){
-        User user = findById(id);
+        UserEntity userEntity = findById(id);
         userRepository.deleteById(id);
     }
 
     @Transactional
     public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id) {
-        User user = userRepository.findById(id)
+        UserEntity userEntity = userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
                 );
 
-        if (user.getPassword() != passwordChangeDto.currentPassword()){
+        if (userEntity.getPassword() != passwordChangeDto.currentPassword()){
             throw new PasswordInvalidException("The current password provided is invalid. Please try again");
         }
 
@@ -65,8 +65,8 @@ public class UserService {
             throw new NewPasswordInvalidException("The new password provided is invalid. Please follow the password requirements.");
         }
 
-        user.setPassword(passwordChangeDto.newPassword());
-        userRepository.save(user);
+        userEntity.setPassword(passwordChangeDto.newPassword());
+        userRepository.save(userEntity);
     }
 
 }

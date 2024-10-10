@@ -1,6 +1,6 @@
 package com.swiss.bank.web.controller;
 
-import com.swiss.bank.entity.User;
+import com.swiss.bank.entity.UserEntity;
 import com.swiss.bank.service.UserService;
 import com.swiss.bank.web.dto.UserCreateDto;
 import com.swiss.bank.web.dto.UserPasswordChangeDto;
@@ -22,14 +22,14 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserResponseDto> saveUser(@RequestBody @Valid UserCreateDto dto){
-        User user = userService.saveUser(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDto.toUserResponse(user));
+        UserEntity userEntity = userService.saveUser(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDto.toUserResponse(userEntity));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDto> getById(@PathVariable Long id){
-        User user = userService.findById(id);
-        return ResponseEntity.ok().body(UserResponseDto.toUserResponse(user));
+        UserEntity userEntity = userService.findById(id);
+        return ResponseEntity.ok().body(UserResponseDto.toUserResponse(userEntity));
     }
 
     @DeleteMapping("/{id}")
