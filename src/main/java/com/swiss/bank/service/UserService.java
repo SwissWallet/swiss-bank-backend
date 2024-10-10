@@ -9,6 +9,7 @@ import com.swiss.bank.repository.IUserRepository;
 import com.swiss.bank.web.dto.UserCreateDto;
 import com.swiss.bank.web.dto.UserPasswordChangeDto;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final IUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserRepository userRepository) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -29,7 +32,7 @@ public class UserService {
             userEntity.setUsername(dto.username());
             userEntity.setCpf(dto.cpf());
             userEntity.setPhone(dto.phone());
-            userEntity.setPassword(dto.password());
+            userEntity.setPassword(passwordEncoder.encode(dto.password()));
             return userRepository.save(userEntity);
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
@@ -52,12 +55,12 @@ public class UserService {
 
     @Transactional
     public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id) {
-        UserEntity userEntity = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
                 );
 
-        if (userEntity.getPassword() != passwordChangeDto.currentPassword()){
+        if (!passwordEncoder.matches(passwordChangeDto.currentPassword(), user.getPassword())){
             throw new PasswordInvalidException("The current password provided is invalid. Please try again");
         }
 
@@ -65,8 +68,8 @@ public class UserService {
             throw new NewPasswordInvalidException("The new password provided is invalid. Please follow the password requirements.");
         }
 
-        userEntity.setPassword(passwordChangeDto.newPassword());
-        userRepository.save(userEntity);
+        user.setPassword(passwordEncoder.encode(passwordChangeDto.newPassword()));
+        userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
