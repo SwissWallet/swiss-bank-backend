@@ -33,11 +33,18 @@ public class UserService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User findById(Long id){
         return userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
                 );
     }
+
+    @Transactional
+    public void deleteUser(Long id){
+        User user = findById(id);
+        userRepository.deleteById(id);
+    }
+
 }
