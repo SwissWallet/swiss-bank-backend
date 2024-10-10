@@ -21,13 +21,17 @@ public class User {
 
     private String password;
 
-    public User(Long id, String username, String name, String cpf, String phone, String password) {
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.ROLE_CLIENT;
+
+    public User(Long id, String username, String name, String cpf, String phone, String password, Role role) {
         this.id = id;
         this.username = username;
         this.name = name;
         this.cpf = cpf;
         this.phone = phone;
         this.password = password;
+        this.role = role;
     }
 
     public User() {
@@ -79,6 +83,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }
 
