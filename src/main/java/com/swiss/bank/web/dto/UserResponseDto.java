@@ -1,7 +1,7 @@
 package com.swiss.bank.web.dto;
 
 import com.swiss.bank.entity.Role;
-import com.swiss.bank.entity.User;
+import com.swiss.bank.entity.UserEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,20 +13,20 @@ public record UserResponseDto(Long id,
                               String phone,
                               Role role) {
 
-    public static UserResponseDto toUserResponse(User user){
+    public static UserResponseDto toUserResponse(UserEntity userEntity){
         return new UserResponseDto(
-                user.getId(),
-                user.getUsername(),
-                user.getName(),
-                user.getCpf(),
-                user.getPhone(),
-                user.getRole()
+                userEntity.getId(),
+                userEntity.getUsername(),
+                userEntity.getName(),
+                userEntity.getCpf(),
+                userEntity.getPhone(),
+                userEntity.getRole()
         );
     }
 
-    public static List<UserResponseDto> toListUserResponse(List<User> users){
-        return users.stream()
-                .map(user -> toUserResponse(user)).collect(Collectors.toList());
+    public static List<UserResponseDto> toListUserResponse(List<UserEntity> userEntities){
+        return userEntities.stream()
+                .map(userEntity -> toUserResponse(userEntity)).collect(Collectors.toList());
     }
 
 }

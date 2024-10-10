@@ -1,6 +1,6 @@
 package com.swiss.bank.service;
 
-import com.swiss.bank.entity.User;
+import com.swiss.bank.entity.UserEntity;
 import com.swiss.bank.exception.NewPasswordInvalidException;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.exception.PasswordInvalidException;
@@ -9,6 +9,7 @@ import com.swiss.bank.repository.IUserRepository;
 import com.swiss.bank.web.dto.UserCreateDto;
 import com.swiss.bank.web.dto.UserPasswordChangeDto;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,28 +17,30 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final IUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserRepository userRepository) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public User saveUser(UserCreateDto dto){
+    public UserEntity saveUser(UserCreateDto dto){
         try{
-            User user = new User();
-            user.setName(dto.name());
-            user.setUsername(dto.username());
-            user.setCpf(dto.cpf());
-            user.setPhone(dto.phone());
-            user.setPassword(dto.password());
-            return userRepository.save(user);
+            UserEntity userEntity = new UserEntity();
+            userEntity.setName(dto.name());
+            userEntity.setUsername(dto.username());
+            userEntity.setCpf(dto.cpf());
+            userEntity.setPhone(dto.phone());
+            userEntity.setPassword(passwordEncoder.encode(dto.password()));
+            return userRepository.save(userEntity);
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
         }
     }
 
     @Transactional(readOnly = true)
-    public User findById(Long id){
+    public UserEntity findById(Long id){
         return userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
@@ -46,18 +49,18 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id){
-        User user = findById(id);
+        UserEntity userEntity = findById(id);
         userRepository.deleteById(id);
     }
 
     @Transactional
     public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id) {
-        User user = userRepository.findById(id)
+        UserEntity user = userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
                 );
 
-        if (user.getPassword() != passwordChangeDto.currentPassword()){
+        if (!passwordEncoder.matches(passwordChangeDto.currentPassword(), user.getPassword())){
             throw new PasswordInvalidException("The current password provided is invalid. Please try again");
         }
 
@@ -65,8 +68,12 @@ public class UserService {
             throw new NewPasswordInvalidException("The new password provided is invalid. Please follow the password requirements.");
         }
 
-        user.setPassword(passwordChangeDto.newPassword());
+        user.setPassword(passwordEncoder.encode(passwordChangeDto.newPassword()));
         userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
+    public UserEntity findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

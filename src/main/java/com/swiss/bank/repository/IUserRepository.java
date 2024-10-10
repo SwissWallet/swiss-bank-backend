@@ -1,7 +1,8 @@
 package com.swiss.bank.repository;
 
-import com.swiss.bank.entity.User;
+import com.swiss.bank.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface IUserRepository extends JpaRepository<User, Long> {
+public interface IUserRepository extends JpaRepository<UserEntity, Long> {
+    UserEntity findByUsername(String username);
 }
