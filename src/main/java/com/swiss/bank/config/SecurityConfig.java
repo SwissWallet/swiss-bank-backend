@@ -1,5 +1,6 @@
 package com.swiss.bank.config;
 
+import com.swiss.bank.jwt.JwtAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,18 +33,8 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 // Configuração de autorização para diferentes tipos de requisição
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v3/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v3/auth").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v3/auth/mobile").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v3/users/recover-password").permitAll()
-                        .requestMatchers(HttpMethod.PUT, "/api/v3/users/recover-password").permitAll()
-                        .requestMatchers(
-                                antMatcher("/docs-wallet.html"),
-                                antMatcher("/docs-wallet/**"),
-                                antMatcher("/swagger-ui.html"),
-                                antMatcher("/swagger-ui/**"),
-                                antMatcher("/webjars/**")
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(
