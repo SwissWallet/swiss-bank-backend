@@ -69,4 +69,8 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
+    @Transactional(readOnly = true)
+    public UserEntity findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }
