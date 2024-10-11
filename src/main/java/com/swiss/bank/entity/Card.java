@@ -1,7 +1,6 @@
 package com.swiss.bank.entity;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -12,25 +11,26 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "id_user", nullable = false)  // Renomeado para "id_user"
     private UserEntity user;
 
     private String cardNumber;
 
     private LocalDateTime validity;
 
-    private Long cvv;
+    private String cvv;
 
-    private float limit;
+    @Column(name = "card_limit")  // Renomeado para "card_limit"
+    private float cardLimit;
 
-    public Card(Long id, UserEntity user, String cardNumber, LocalDateTime validity, Long cvv, float limit) {
+    public Card(Long id, UserEntity user, String cardNumber, LocalDateTime validity, String cvv, float cardLimit) {
         this.id = id;
         this.user = user;
         this.cardNumber = cardNumber;
         this.validity = validity;
         this.cvv = cvv;
-        this.limit = limit;
+        this.cardLimit = cardLimit;
     }
 
     public Card() {
@@ -68,19 +68,19 @@ public class Card {
         this.validity = validity;
     }
 
-    public Long getCvv() {
+    public String getCvv() {
         return cvv;
     }
 
-    public void setCvv(Long cvv) {
+    public void setCvv(String cvv) {
         this.cvv = cvv;
     }
 
-    public float getLimit() {
-        return limit;
+    public float getCardLimit() {
+        return cardLimit;
     }
 
-    public void setLimit(float limit) {
-        this.limit = limit;
+    public void setCardLimit(float cardLimit) {
+        this.cardLimit = cardLimit;
     }
 }

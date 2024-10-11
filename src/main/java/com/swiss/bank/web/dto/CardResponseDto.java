@@ -1,5 +1,6 @@
 package com.swiss.bank.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.swiss.bank.entity.Card;
 
 import java.time.LocalDateTime;
@@ -8,22 +9,23 @@ import java.util.stream.Collectors;
 
 public record CardResponseDto(UserResponseDto user,
                               String cardNumber,
+                              @JsonFormat(pattern = "dd/MM/yyyy - HH:mm")
                               LocalDateTime validity,
-                              Long cvv,
-                              float limit) {
+                              String cvv,
+                              float cardLimit) {
 
-    public static CardResponseDto toUserResponse(Card card){
+    public static CardResponseDto toResponse(Card card){
         return new CardResponseDto(
                 UserResponseDto.toUserResponse(card.getUser()),
                 card.getCardNumber(),
                 card.getValidity(),
                 card.getCvv(),
-                card.getLimit()
+                card.getCardLimit()
         );
     }
 
-    public static List<CardResponseDto> toListUserResponse(List<Card> cards){
+    public static List<CardResponseDto> toListResponse(List<Card> cards){
         return cards.stream()
-                .map(card -> toUserResponse(card)).collect(Collectors.toList());
+                .map(card -> toResponse(card)).collect(Collectors.toList());
     }
 }
