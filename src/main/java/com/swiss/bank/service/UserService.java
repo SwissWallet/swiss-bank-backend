@@ -35,8 +35,9 @@ public class UserService {
             userEntity.setCpf(dto.cpf());
             userEntity.setPhone(dto.phone());
             userEntity.setPassword(passwordEncoder.encode(dto.password()));
+            userEntity = userRepository.save(userEntity);
             cardService.saveCard(userEntity);
-            return userRepository.save(userEntity);
+            return userEntity;
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
         }

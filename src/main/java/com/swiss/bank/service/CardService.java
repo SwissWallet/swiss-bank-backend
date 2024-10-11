@@ -2,6 +2,7 @@ package com.swiss.bank.service;
 
 import com.swiss.bank.entity.Card;
 import com.swiss.bank.entity.UserEntity;
+import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.repository.ICardRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +26,7 @@ public class CardService {
         card.setCardNumber(generateUniqueNumber());
         card.setCvv(generateCvvNumber());
         card.setUser(user);
-        card.setLimit(200);
+        card.setCardLimit(200);
         card.setValidity(LocalDateTime.now().plusMonths(5));
         return cardRepository.save(card);
     }
@@ -36,8 +37,9 @@ public class CardService {
         boolean exists;
 
         do {
-            long number = Math.abs(random.nextLong() % 10000000000000000L);
-            cardNumber = String.format("%016d", number);
+            int number = random.nextInt(100000000);
+            cardNumber = String.format("%08d", number);
+
             Optional<Card> cardExists = cardRepository.findByCardNumber(cardNumber);
             exists = cardExists.isPresent();
         } while (exists);
@@ -45,9 +47,15 @@ public class CardService {
         return cardNumber;
     }
 
-    public Long generateCvvNumber(){
+    public String generateCvvNumber() {
         Random random = new Random();
-        String cvvNumber = String.format("%03d", random.nextInt(1000));
-        return Long.valueOf(cvvNumber);
+        return String.format("%03d", random.nextInt(1000));
+    }
+
+    @Transactional(readOnly = true)
+    public Card findById(Long id){
+        return cardRepository.findById(id).orElseThrow(
+                () -> new ObjectNotFoundException(String.format("Card id = %s not found", id))
+        );
     }
 }
