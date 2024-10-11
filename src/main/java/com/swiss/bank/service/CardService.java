@@ -4,6 +4,9 @@ import com.swiss.bank.entity.Card;
 import com.swiss.bank.entity.UserEntity;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.repository.ICardRepository;
+import com.swiss.bank.repository.IUserRepository;
+import com.swiss.bank.web.dto.UserResponseDto;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +18,11 @@ import java.util.Random;
 public class CardService {
 
     private final ICardRepository cardRepository;
+    private final IUserRepository userRepository;
 
-    public CardService(ICardRepository cardRepository) {
+    public CardService(ICardRepository cardRepository, IUserRepository userRepository) {
         this.cardRepository = cardRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -54,8 +59,12 @@ public class CardService {
 
     @Transactional(readOnly = true)
     public Card findById(Long id){
-        return cardRepository.findById(id).orElseThrow(
-                () -> new ObjectNotFoundException(String.format("Card id = %s not found", id))
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+        return cardRepository.findByUser(user).orElseThrow(
+                () -> new ObjectNotFoundException(String.format("Card not found. Please check the user ID or username and try again."))
         );
     }
 }

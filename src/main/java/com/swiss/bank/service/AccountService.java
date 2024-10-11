@@ -2,8 +2,10 @@ package com.swiss.bank.service;
 
 import com.swiss.bank.entity.Account;
 import com.swiss.bank.entity.UserEntity;
+import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.exception.UserUniqueViolationException;
 import com.swiss.bank.repository.IAccountRepository;
+import com.swiss.bank.repository.IUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +16,11 @@ import java.util.Random;
 public class AccountService {
 
     private final IAccountRepository accountRepository;
+    private final IUserRepository userRepository;
 
-    public AccountService(IAccountRepository accountRepository) {
+    public AccountService(IAccountRepository accountRepository, IUserRepository userRepository) {
         this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -25,12 +29,12 @@ public class AccountService {
             throw new UserUniqueViolationException(String.format("User already an account"));
         }
         Account account = new Account();
-        account.setAccountNumber(generateUnicNumber());
+        account.setAccountNumber(generateUniqueNumber());
         account.setUser(user);
         return accountRepository.save(account);
     }
 
-    public String generateUnicNumber(){
+    public String generateUniqueNumber(){
         Random random = new Random();
         String accountNumber;
         boolean exists;
@@ -43,4 +47,15 @@ public class AccountService {
         return accountNumber;
     }
 
+    @Transactional(readOnly = true)
+    public  Account findByUser(Long idUser){
+        UserEntity user =  userRepository.findById(idUser)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+        return accountRepository.findByUser(user)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
+                );
+    }
 }
