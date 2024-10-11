@@ -12,7 +12,7 @@ public class Card {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "id_user", nullable = false)  // Renomeado para "id_user"
+    @JoinColumn(name = "id_user", nullable = false)
     private UserEntity user;
 
     private String cardNumber;
@@ -21,7 +21,7 @@ public class Card {
 
     private String cvv;
 
-    @Column(name = "card_limit")  // Renomeado para "card_limit"
+    @Column(name = "card_limit")
     private float cardLimit;
 
     public Card(Long id, UserEntity user, String cardNumber, LocalDateTime validity, String cvv, float cardLimit) {
