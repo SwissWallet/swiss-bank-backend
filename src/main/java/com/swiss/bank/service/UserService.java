@@ -18,10 +18,12 @@ public class UserService {
 
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CardService cardService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, CardService cardService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.cardService = cardService;
     }
 
     @Transactional
@@ -33,6 +35,7 @@ public class UserService {
             userEntity.setCpf(dto.cpf());
             userEntity.setPhone(dto.phone());
             userEntity.setPassword(passwordEncoder.encode(dto.password()));
+            cardService.saveCard(userEntity);
             return userRepository.save(userEntity);
         }catch (DataIntegrityViolationException ex){
             throw new UserUniqueViolationException(String.format("A user with this username= %s already exists. Please use a different username.", dto.username()));
