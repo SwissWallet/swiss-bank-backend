@@ -29,6 +29,12 @@ public class PurchaseController {
         return ResponseEntity.status(HttpStatus.CREATED).body(PurchaseResponseDto.toResponse(purchase));
     }
 
+    @PostMapping("/pix")
+    public ResponseEntity<String> createPurchasePix(@RequestBody PurchaseCreateDto dto){
+        String codePix = purchaseService.generatePurchasePix(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(codePix);
+    }
+
     @GetMapping("/current")
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<List<PurchaseResponseDto>> listCurrentPurchases(@AuthenticationPrincipal JwtUserDetails userDetails){

@@ -1,12 +1,11 @@
 package com.swiss.bank.service;
 
-import com.swiss.bank.entity.Account;
-import com.swiss.bank.entity.CodePix;
-import com.swiss.bank.entity.UserEntity;
+import com.swiss.bank.entity.*;
 import com.swiss.bank.exception.BalanceInsuficientException;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.repository.IAccountRepository;
 import com.swiss.bank.repository.ICodeRepository;
+import com.swiss.bank.repository.IPurchaseRepository;
 import com.swiss.bank.repository.IUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +19,13 @@ public class CodePixService {
     private final ICodeRepository codeRepository;
     private final IAccountRepository accountRepository;
     private final IUserRepository userRepository;
+    private final IPurchaseRepository purchaseRepository;
 
-    public CodePixService(ICodeRepository codeRepository, IAccountRepository accountRepository, IUserRepository userRepository) {
+    public CodePixService(ICodeRepository codeRepository, IAccountRepository accountRepository, IUserRepository userRepository, IPurchaseRepository purchaseRepository) {
         this.codeRepository = codeRepository;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.purchaseRepository = purchaseRepository;
     }
 
     @Transactional
@@ -73,6 +74,9 @@ public class CodePixService {
         if (account.getBalance() < codePix.getValue()){
             throw new BalanceInsuficientException("Insufficient balance to make payment");
         }
+
+        Purchase purchase = purchaseRepository.findByCodePix(code);
+        purchase.setStatus(StatusPurhcase.PAID);
 
         account.setBalance(account.getBalance() - codePix.getValue());
         accountRepository.save(account);

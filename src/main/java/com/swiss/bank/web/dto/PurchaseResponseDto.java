@@ -2,6 +2,7 @@ package com.swiss.bank.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.swiss.bank.entity.Purchase;
+import com.swiss.bank.entity.StatusPurhcase;
 import com.swiss.bank.entity.UserEntity;
 
 import java.time.LocalDateTime;
@@ -12,14 +13,16 @@ public record PurchaseResponseDto(Long id,
                                   UserResponseDto user,
                                   float value,
                                   @JsonFormat(pattern = "dd/MM/yyyy")
-                                  LocalDateTime datePurchase) {
+                                  LocalDateTime datePurchase,
+                                  StatusPurhcase status) {
 
     public static PurchaseResponseDto toResponse(Purchase purchase){
         return new PurchaseResponseDto(
                 purchase.getId(),
                 UserResponseDto.toUserResponse(purchase.getUser()),
                 purchase.getValue(),
-                purchase.getDatePurchase()
+                purchase.getDatePurchase(),
+                purchase.getStatus()
         );
     }
 
