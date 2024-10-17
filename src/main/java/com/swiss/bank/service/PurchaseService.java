@@ -3,42 +3,51 @@ package com.swiss.bank.service;
 import com.swiss.bank.entity.Account;
 import com.swiss.bank.entity.Card;
 import com.swiss.bank.entity.Purchase;
+import com.swiss.bank.entity.UserEntity;
 import com.swiss.bank.exception.BalanceInsuficientException;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.repository.IAccountRepository;
+import com.swiss.bank.repository.ICardRepository;
 import com.swiss.bank.repository.IPurchaseRepository;
+import com.swiss.bank.repository.IUserRepository;
 import com.swiss.bank.web.dto.AccountResponseDto;
 import com.swiss.bank.web.dto.PurchaseCreateDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Service
 public class PurchaseService {
 
     private final IPurchaseRepository purchaseRepository;
-    private final CardService cardService;
+    private final ICardRepository cardRepository;
     private final IAccountRepository accountRepository;
+    private final IUserRepository userRepository;
 
-    public PurchaseService(IPurchaseRepository purchaseRepository, CardService cardService, IAccountRepository accountRepository) {
+    public PurchaseService(IPurchaseRepository purchaseRepository, ICardRepository cardRepository, IAccountRepository accountRepository, IUserRepository userRepository) {
         this.purchaseRepository = purchaseRepository;
-        this.cardService = cardService;
+        this.cardRepository = cardRepository;
         this.accountRepository = accountRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
     public Purchase savePurchase(PurchaseCreateDto dto){
         Purchase purchase = new Purchase();
-
-        Card card = cardService.findById(dto.idCard());
-        purchase.setCard(card);
+        UserEntity user = userRepository.findByUsername(dto.username());
+        Card card = cardRepository.findByUser(user)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Card not found. Please check the user ID or username and try again."))
+                );
+        purchase.setUser(user);
         purchase.setValue(dto.value());
         purchase.setDatePurchase(LocalDateTime.now());
 
-        if (dto.typeCard().equals("DEBIT")){
-            Account account = accountRepository.findByUser(card.getUser())
+        if (dto.typePayment().equals("DEBIT")){
+            Account account = accountRepository.findByUser(user)
                     .orElseThrow(
                             () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
                     );
@@ -47,12 +56,23 @@ public class PurchaseService {
             }
             account.setBalance(account.getBalance() - dto.value());
             accountRepository.save(account);
-            purchase.setParcel(1);
             purchaseRepository.save(purchase);
-        }else if (dto.typeCard().equals("CREDIT")){
-            purchase.setParcel(dto.parcel());
+        } else if (dto.typePayment().equals("CREDIT")){
+            if (card.getCardLimit() < dto.value()){
+                throw new BalanceInsuficientException("Insufficient limit to make purchase");
+            }
+            card.setCardLimit(card.getCardLimit() - dto.value());
+            cardRepository.save(card);
             purchaseRepository.save(purchase);
         }
      return purchase;
+    }
+
+    public List<Purchase> listCurrentPurchases(Long idUser){
+        UserEntity user = userRepository.findById(idUser)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );;
+        return purchaseRepository.findAllByUser(user);
     }
 }

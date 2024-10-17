@@ -13,21 +13,18 @@ public class Purchase {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cardId", nullable = false)
-    private Card card;
+    @JoinColumn(name = "userId", nullable = false)
+    private UserEntity user;
 
     private float value;
 
     private LocalDateTime datePurchase;
 
-    private int parcel;
-
-    public Purchase(Long id, Card card, float value, LocalDateTime datePurchase, int parcel) {
+    public Purchase(Long id, UserEntity user, float value, LocalDateTime datePurchase) {
         this.id = id;
-        this.card = card;
+        this.user = user;
         this.value = value;
         this.datePurchase = datePurchase;
-        this.parcel = parcel;
     }
 
     public Purchase() {
@@ -41,12 +38,12 @@ public class Purchase {
         this.id = id;
     }
 
-    public Card getCard() {
-        return card;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setCard(Card card) {
-        this.card = card;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     public float getValue() {
@@ -65,11 +62,5 @@ public class Purchase {
         this.datePurchase = datePurchase;
     }
 
-    public int getParcel() {
-        return parcel;
-    }
 
-    public void setParcel(int parcel) {
-        this.parcel = parcel;
-    }
 }
