@@ -2,25 +2,24 @@ package com.swiss.bank.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.swiss.bank.entity.Purchase;
+import com.swiss.bank.entity.UserEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public record PurchaseResponseDto(Long id,
-                                  CardResponseDto card,
+                                  UserResponseDto user,
                                   float value,
                                   @JsonFormat(pattern = "dd/MM/yyyy")
-                                  LocalDateTime datePurchase,
-                                  int parcel) {
+                                  LocalDateTime datePurchase) {
 
     public static PurchaseResponseDto toResponse(Purchase purchase){
         return new PurchaseResponseDto(
                 purchase.getId(),
-                CardResponseDto.toResponse(purchase.getCard()),
+                UserResponseDto.toUserResponse(purchase.getUser()),
                 purchase.getValue(),
-                purchase.getDatePurchase(),
-                purchase.getParcel()
+                purchase.getDatePurchase()
         );
     }
 

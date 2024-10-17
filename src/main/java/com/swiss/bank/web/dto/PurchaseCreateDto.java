@@ -4,8 +4,7 @@ import com.swiss.bank.entity.Card;
 
 import java.time.LocalDateTime;
 
-public record PurchaseCreateDto(Long idCard,
-                                String typeCard,
-                                float value,
-                                int parcel) {
+public record PurchaseCreateDto(String username,
+                                String typePayment,
+                                float value) {
 }
