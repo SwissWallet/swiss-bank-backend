@@ -20,6 +20,9 @@ public class CodePix {
         this.code = code;
     }
 
+    public CodePix() {
+    }
+
     public Long getId() {
         return id;
     }
