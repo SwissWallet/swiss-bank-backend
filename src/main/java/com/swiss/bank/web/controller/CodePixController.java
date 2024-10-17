@@ -24,7 +24,6 @@ public class CodePixController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<String> saveCodePix(@RequestParam("value") float value){
         String codePix = codePixService.createCodePix(value);
         return ResponseEntity.status(HttpStatus.CREATED).body(codePix);
