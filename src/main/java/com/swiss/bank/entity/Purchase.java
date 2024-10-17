@@ -20,11 +20,18 @@ public class Purchase {
 
     private LocalDateTime datePurchase;
 
-    public Purchase(Long id, UserEntity user, float value, LocalDateTime datePurchase) {
+    @Enumerated(EnumType.STRING)
+    private StatusPurhcase status = StatusPurhcase.PENDING;
+
+    private String codePix = "noCode";
+
+    public Purchase(Long id, UserEntity user, float value, LocalDateTime datePurchase, StatusPurhcase status, String codePix) {
         this.id = id;
         this.user = user;
         this.value = value;
         this.datePurchase = datePurchase;
+        this.status = status;
+        this.codePix = codePix;
     }
 
     public Purchase() {
@@ -62,5 +69,19 @@ public class Purchase {
         this.datePurchase = datePurchase;
     }
 
+    public StatusPurhcase getStatus() {
+        return status;
+    }
 
+    public void setStatus(StatusPurhcase status) {
+        this.status = status;
+    }
+
+    public String getCodePix() {
+        return codePix;
+    }
+
+    public void setCodePix(String codePix) {
+        this.codePix = codePix;
+    }
 }

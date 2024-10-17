@@ -1,9 +1,6 @@
 package com.swiss.bank.service;
 
-import com.swiss.bank.entity.Account;
-import com.swiss.bank.entity.Card;
-import com.swiss.bank.entity.Purchase;
-import com.swiss.bank.entity.UserEntity;
+import com.swiss.bank.entity.*;
 import com.swiss.bank.exception.BalanceInsuficientException;
 import com.swiss.bank.exception.ObjectNotFoundException;
 import com.swiss.bank.repository.IAccountRepository;
@@ -26,12 +23,14 @@ public class PurchaseService {
     private final ICardRepository cardRepository;
     private final IAccountRepository accountRepository;
     private final IUserRepository userRepository;
+    private final CodePixService codePixService;
 
-    public PurchaseService(IPurchaseRepository purchaseRepository, ICardRepository cardRepository, IAccountRepository accountRepository, IUserRepository userRepository) {
+    public PurchaseService(IPurchaseRepository purchaseRepository, ICardRepository cardRepository, IAccountRepository accountRepository, IUserRepository userRepository, CodePixService codePixService) {
         this.purchaseRepository = purchaseRepository;
         this.cardRepository = cardRepository;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.codePixService = codePixService;
     }
 
     @Transactional
@@ -63,11 +62,26 @@ public class PurchaseService {
             }
             card.setCardLimit(card.getCardLimit() - dto.value());
             cardRepository.save(card);
+            purchase.setStatus(StatusPurhcase.PAID);
             purchaseRepository.save(purchase);
         }
      return purchase;
     }
 
+    @Transactional
+    public String generatePurchasePix(PurchaseCreateDto dto){
+        String code = codePixService.createCodePix(dto.value());
+        UserEntity user = userRepository.findByUsername(dto.username());
+        Purchase purchase = new Purchase();
+        purchase.setDatePurchase(LocalDateTime.now());
+        purchase.setValue(dto.value());
+        purchase.setUser(user);
+        purchase.setCodePix(code);
+        purchaseRepository.save(purchase);
+        return code;
+    }
+
+    @Transactional(readOnly = true)
     public List<Purchase> listCurrentPurchases(Long idUser){
         UserEntity user = userRepository.findById(idUser)
                 .orElseThrow(
