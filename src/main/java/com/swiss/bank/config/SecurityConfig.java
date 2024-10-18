@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/purchases").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/purchases/pix").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/purchases/paids").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/purchases/paids/deposit").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/codes").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth").permitAll()
                         .anyRequest().authenticated()

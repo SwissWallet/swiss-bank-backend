@@ -48,4 +48,10 @@ public class PurchaseController {
         return ResponseEntity.ok().body(PurchaseResponseDto.toListResponse(purchases));
     }
 
+    @PutMapping("/paids/deposit")
+    public ResponseEntity<PurchaseResponseDto> updateStatus(@RequestParam Long id){
+        Purchase purchase = purchaseService.updateStatus(id);
+        return ResponseEntity.ok().body(PurchaseResponseDto.toResponse(purchase));
+    }
+
 }

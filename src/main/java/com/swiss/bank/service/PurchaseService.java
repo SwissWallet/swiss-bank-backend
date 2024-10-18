@@ -107,4 +107,13 @@ public class PurchaseService {
     public List<Purchase> listPaidsPurchases() {
         return purchaseRepository.findAllByStatus(StatusPurhcase.PAID);
     }
+
+    public Purchase updateStatus(Long id) {
+        Purchase purchase = purchaseRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Purchase not found. Please check the user ID or username and try again."))
+                );
+        purchase.setStatus(StatusPurhcase.DEPOSIT);
+        return purchaseRepository.save(purchase);
+    }
 }
