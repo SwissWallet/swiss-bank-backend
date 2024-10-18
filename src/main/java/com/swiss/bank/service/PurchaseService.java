@@ -103,4 +103,8 @@ public class PurchaseService {
                 );
         purchaseRepository.deleteByUser(user);
     }
+
+    public List<Purchase> listPaidsPurchases() {
+        return purchaseRepository.findAllByStatus(StatusPurhcase.PAID);
+    }
 }

@@ -42,4 +42,10 @@ public class PurchaseController {
         return ResponseEntity.ok().body(PurchaseResponseDto.toListResponse(purchases));
     }
 
+    @GetMapping("/paids")
+    public ResponseEntity<List<PurchaseResponseDto>> listPaidsPurchases(){
+        List<Purchase> purchases = purchaseService.listPaidsPurchases();
+        return ResponseEntity.ok().body(PurchaseResponseDto.toListResponse(purchases));
+    }
+
 }
