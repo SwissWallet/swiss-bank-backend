@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 // Configuração de autorização para diferentes tipos de requisição
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
+                        .requestMatchers("/api/v1/users/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/purchases").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/purchases/pix").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/codes").permitAll()

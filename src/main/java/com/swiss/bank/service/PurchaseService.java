@@ -36,7 +36,10 @@ public class PurchaseService {
     @Transactional
     public Purchase savePurchase(PurchaseCreateDto dto){
         Purchase purchase = new Purchase();
-        UserEntity user = userRepository.findByUsername(dto.username());
+        UserEntity user = userRepository.findByUsername(dto.username())
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
         Card card = cardRepository.findByUser(user)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("Card not found. Please check the user ID or username and try again."))
@@ -71,7 +74,10 @@ public class PurchaseService {
     @Transactional
     public String generatePurchasePix(PurchaseCreateDto dto){
         String code = codePixService.createCodePix(dto.value());
-        UserEntity user = userRepository.findByUsername(dto.username());
+        UserEntity user = userRepository.findByUsername(dto.username())
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
         Purchase purchase = new Purchase();
         purchase.setDatePurchase(LocalDateTime.now());
         purchase.setValue(dto.value());
@@ -88,5 +94,13 @@ public class PurchaseService {
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
                 );;
         return purchaseRepository.findAllByUser(user);
+    }
+
+    public void deleteByUser(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+        purchaseRepository.deleteByUser(user);
     }
 }

@@ -10,4 +10,6 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Long> {
     List<Purchase> findAllByUser(UserEntity user);
 
     Purchase findByCodePix(String codePix);
+
+    void deleteByUser(UserEntity user);
 }

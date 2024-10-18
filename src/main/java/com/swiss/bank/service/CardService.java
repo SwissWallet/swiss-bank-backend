@@ -67,4 +67,12 @@ public class CardService {
                 () -> new ObjectNotFoundException(String.format("Card not found. Please check the user ID or username and try again."))
         );
     }
+
+    public void deleteByUser(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+        cardRepository.deleteByUser(user);
+    }
 }

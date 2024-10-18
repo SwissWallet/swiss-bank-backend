@@ -12,4 +12,6 @@ public interface IAccountRepository extends JpaRepository<Account, Long> {
     boolean existsByUser(UserEntity user);
 
     Optional<Account> findByUser(UserEntity user);
+
+    void deleteByUser(UserEntity user);
 }

@@ -37,17 +37,15 @@ public class UserController {
     }
 
     @DeleteMapping
-    @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<Void> deleteById(@AuthenticationPrincipal JwtUserDetails userDetails){
-        userService.deleteUser(userDetails.getId());
+    public ResponseEntity<Void> deleteById(@RequestParam Long id){
+        userService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/password")
-    @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<Void> updateUserPassword(@RequestBody @Valid UserPasswordChangeDto passwordChangeDto,
-                                                   @AuthenticationPrincipal JwtUserDetails userDetails){
-        userService.changeUserPassword(passwordChangeDto, userDetails.getId());
+                                                   @RequestParam("id") Long id){
+        userService.changeUserPassword(passwordChangeDto, id);
         return ResponseEntity.ok().build();
     }
 }

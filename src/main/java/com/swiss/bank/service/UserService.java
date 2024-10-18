@@ -20,12 +20,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final CardService cardService;
     private final AccountService accountService;
+    private final PurchaseService purchaseService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, CardService cardService, AccountService accountService) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, CardService cardService, AccountService accountService, PurchaseService purchaseService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardService = cardService;
         this.accountService = accountService;
+        this.purchaseService = purchaseService;
     }
 
     @Transactional
@@ -57,11 +59,14 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id){
         UserEntity userEntity = findById(id);
-        userRepository.deleteById(id);
+        cardService.deleteByUser(userEntity.getId());
+        accountService.deleteByUser(userEntity.getId());
+        purchaseService.deleteByUser(userEntity.getId());
+        userRepository.deleteById(userEntity.getId());
     }
 
     @Transactional
-    public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id) {
+    public void changeUserPassword(UserPasswordChangeDto passwordChangeDto, Long id ) {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
@@ -81,6 +86,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserEntity findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
     }
 }
