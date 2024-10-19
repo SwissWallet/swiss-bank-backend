@@ -59,6 +59,7 @@ public class PurchaseService {
             }
             account.setBalance(account.getBalance() - dto.value());
             accountRepository.save(account);
+            purchase.setStatus(StatusPurhcase.DEPOSIT);
             purchaseRepository.save(purchase);
         } else if (dto.typePayment().equals("CREDIT")){
             if (card.getCardLimit() < dto.value()){
@@ -66,7 +67,7 @@ public class PurchaseService {
             }
             card.setCardLimit(card.getCardLimit() - dto.value());
             cardRepository.save(card);
-            purchase.setStatus(StatusPurhcase.PAID);
+            purchase.setStatus(StatusPurhcase.DEPOSIT);
             purchaseRepository.save(purchase);
         }
      return purchase;
