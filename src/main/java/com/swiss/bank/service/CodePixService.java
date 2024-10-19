@@ -67,6 +67,10 @@ public class CodePixService {
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
                 );
+        Account accountAdmin = accountRepository.findByAccountNumber("12345")
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
+                );
         CodePix codePix = codeRepository.findCodePixByCode(code)
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("Code pix not found. Please check the user ID or username and try again."))
@@ -77,9 +81,10 @@ public class CodePixService {
 
         Purchase purchase = purchaseRepository.findByCodePix(code);
         purchase.setStatus(StatusPurhcase.PAID);
-
+        accountAdmin.setBalance(accountAdmin.getBalance() + codePix.getValue());
         account.setBalance(account.getBalance() - codePix.getValue());
         accountRepository.save(account);
+        accountRepository.save(accountAdmin);
 
         codeRepository.deleteById(codePix.getId());
     }

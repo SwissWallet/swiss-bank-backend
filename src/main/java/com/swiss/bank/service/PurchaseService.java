@@ -35,7 +35,7 @@ public class PurchaseService {
     }
 
     @Transactional
-    public Purchase savePurchase(PurchaseCreateDto dto){
+    public Purchase savePurchase(PurchaseCreateDto dto) {
         Purchase purchase = new Purchase();
         UserEntity user = userRepository.findByUsername(dto.username())
                 .orElseThrow(
@@ -45,24 +45,32 @@ public class PurchaseService {
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("Card not found. Please check the user ID or username and try again."))
                 );
+        Account accountAdmin = accountRepository.findByAccountNumber("12345")
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
+                );
         purchase.setUser(user);
         purchase.setValue(dto.value());
         purchase.setDatePurchase(LocalDateTime.now());
 
-        if (dto.typePayment().equals("DEBIT")){
-            Account account = accountRepository.findByUser(user)
+        Account account;
+        if (dto.typePayment().equals("DEBIT")) {
+            account = accountRepository.findByUser(user)
                     .orElseThrow(
                             () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
                     );
-            if (account.getBalance() < dto.value()){
+
+
+            if (account.getBalance() < dto.value()) {
                 throw new BalanceInsuficientException("Insufficient balance to make purchase");
             }
             account.setBalance(account.getBalance() - dto.value());
             accountRepository.save(account);
+
             purchase.setStatus(StatusPurhcase.DEPOSIT);
             purchaseRepository.save(purchase);
-        } else if (dto.typePayment().equals("CREDIT")){
-            if (card.getCardLimit() < dto.value()){
+        } else if (dto.typePayment().equals("CREDIT")) {
+            if (card.getCardLimit() < dto.value()) {
                 throw new BalanceInsuficientException("Insufficient limit to make purchase");
             }
             card.setCardLimit(card.getCardLimit() - dto.value());
@@ -70,7 +78,9 @@ public class PurchaseService {
             purchase.setStatus(StatusPurhcase.DEPOSIT);
             purchaseRepository.save(purchase);
         }
-     return purchase;
+        accountAdmin.setBalance(accountAdmin.getBalance() + dto.value());
+        accountRepository.save(accountAdmin);
+        return purchase;
     }
 
     @Transactional

@@ -40,6 +40,7 @@ public class AdminUserConfig implements CommandLineRunner {
 
                     var account = new Account();
                     account.setUser(userEntity);
+                    account.setAccountNumber("12345");
                     accountRepository.save(account);
                 }
         );
