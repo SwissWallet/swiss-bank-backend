@@ -3,14 +3,12 @@ package com.swiss.bank.service;
 import com.swiss.bank.entity.*;
 import com.swiss.bank.exception.BalanceInsuficientException;
 import com.swiss.bank.exception.ObjectNotFoundException;
-import com.swiss.bank.repository.IAccountRepository;
-import com.swiss.bank.repository.ICodeRepository;
-import com.swiss.bank.repository.IPurchaseRepository;
-import com.swiss.bank.repository.IUserRepository;
+import com.swiss.bank.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -20,12 +18,14 @@ public class CodePixService {
     private final IAccountRepository accountRepository;
     private final IUserRepository userRepository;
     private final IPurchaseRepository purchaseRepository;
+    private final IExtractRepository extractRepository;
 
-    public CodePixService(ICodeRepository codeRepository, IAccountRepository accountRepository, IUserRepository userRepository, IPurchaseRepository purchaseRepository) {
+    public CodePixService(ICodeRepository codeRepository, IAccountRepository accountRepository, IUserRepository userRepository, IPurchaseRepository purchaseRepository, IExtractRepository extractRepository) {
         this.codeRepository = codeRepository;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.purchaseRepository = purchaseRepository;
+        this.extractRepository = extractRepository;
     }
 
     @Transactional
@@ -85,6 +85,21 @@ public class CodePixService {
         account.setBalance(account.getBalance() - codePix.getValue());
         accountRepository.save(account);
         accountRepository.save(accountAdmin);
+
+        Extract extract = new Extract();
+        extract.setAccount(account);
+        extract.setValue((double) purchase.getValue());
+        extract.setType(Extract.Type.TRANSACTION);
+        extract.setDescription(String.format("Purchase payment made by pix"));
+        extract.setDate(LocalDateTime.now());
+        extractRepository.save(extract);
+
+        extract.setAccount(accountAdmin);
+        extract.setValue((double) purchase.getValue());
+        extract.setType(Extract.Type.DEPOSIT);
+        extract.setDescription("Purchase deposit made by pix");
+        extract.setDate(LocalDateTime.now());
+        extractRepository.save(extract);
 
         codeRepository.deleteById(codePix.getId());
     }

@@ -14,4 +14,6 @@ public interface IAccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUser(UserEntity user);
 
     void deleteByUser(UserEntity user);
+
+    Optional<Account> findAccountByUser(UserEntity user);
 }
