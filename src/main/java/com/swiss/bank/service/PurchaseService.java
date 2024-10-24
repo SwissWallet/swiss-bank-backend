@@ -3,10 +3,7 @@ package com.swiss.bank.service;
 import com.swiss.bank.entity.*;
 import com.swiss.bank.exception.BalanceInsuficientException;
 import com.swiss.bank.exception.ObjectNotFoundException;
-import com.swiss.bank.repository.IAccountRepository;
-import com.swiss.bank.repository.ICardRepository;
-import com.swiss.bank.repository.IPurchaseRepository;
-import com.swiss.bank.repository.IUserRepository;
+import com.swiss.bank.repository.*;
 import com.swiss.bank.web.dto.AccountResponseDto;
 import com.swiss.bank.web.dto.PurchaseCreateDto;
 import org.springframework.security.core.parameters.P;
@@ -25,13 +22,15 @@ public class PurchaseService {
     private final IAccountRepository accountRepository;
     private final IUserRepository userRepository;
     private final CodePixService codePixService;
+    private final IExtractRepository extractRepository;
 
-    public PurchaseService(IPurchaseRepository purchaseRepository, ICardRepository cardRepository, IAccountRepository accountRepository, IUserRepository userRepository, CodePixService codePixService) {
+    public PurchaseService(IPurchaseRepository purchaseRepository, ICardRepository cardRepository, IAccountRepository accountRepository, IUserRepository userRepository, CodePixService codePixService, IExtractRepository extractRepository) {
         this.purchaseRepository = purchaseRepository;
         this.cardRepository = cardRepository;
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
         this.codePixService = codePixService;
+        this.extractRepository = extractRepository;
     }
 
     @Transactional
@@ -49,17 +48,15 @@ public class PurchaseService {
                 .orElseThrow(
                         () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
                 );
+        Account account = accountRepository.findByUser(user)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
+                );
         purchase.setUser(user);
         purchase.setValue(dto.value());
         purchase.setDatePurchase(LocalDateTime.now());
 
-        Account account;
         if (dto.typePayment().equals("DEBIT")) {
-            account = accountRepository.findByUser(user)
-                    .orElseThrow(
-                            () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
-                    );
-
 
             if (account.getBalance() < dto.value()) {
                 throw new BalanceInsuficientException("Insufficient balance to make purchase");
@@ -80,6 +77,22 @@ public class PurchaseService {
         }
         accountAdmin.setBalance(accountAdmin.getBalance() + dto.value());
         accountRepository.save(accountAdmin);
+
+        Extract extract = new Extract();
+        extract.setAccount(account);
+        extract.setValue((double) purchase.getValue());
+        extract.setType(Extract.Type.TRANSACTION);
+        extract.setDescription(String.format("Purchase payment made by pix"));
+        extract.setDate(LocalDateTime.now());
+        extractRepository.save(extract);
+
+        extract.setAccount(accountAdmin);
+        extract.setValue((double) purchase.getValue());
+        extract.setType(Extract.Type.DEPOSIT);
+        extract.setDescription("Purchase deposit made by pix");
+        extract.setDate(LocalDateTime.now());
+        extractRepository.save(extract);
+
         return purchase;
     }
 
