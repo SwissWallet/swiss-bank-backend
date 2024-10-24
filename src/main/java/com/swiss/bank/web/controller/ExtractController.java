@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v3/extracts")
+@RequestMapping("/api/v1/extracts")
 public class ExtractController {
 
     private final ExtractService extractService;
