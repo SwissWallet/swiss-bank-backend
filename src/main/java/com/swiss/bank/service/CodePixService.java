@@ -86,20 +86,21 @@ public class CodePixService {
         accountRepository.save(account);
         accountRepository.save(accountAdmin);
 
-        Extract extract = new Extract();
-        extract.setAccount(account);
-        extract.setValue((double) purchase.getValue());
-        extract.setType(Extract.Type.TRANSACTION);
-        extract.setDescription(String.format("Purchase payment made by pix"));
-        extract.setDate(LocalDateTime.now());
-        extractRepository.save(extract);
+        Extract extractUser = new Extract();
+        extractUser.setAccount(account);
+        extractUser.setValue((double) purchase.getValue());
+        extractUser.setType(Extract.Type.TRANSACTION);
+        extractUser.setDescription(String.format("Purchase payment made by pix"));
+        extractUser.setDate(LocalDateTime.now());
+        extractRepository.save(extractUser);
 
-        extract.setAccount(accountAdmin);
-        extract.setValue((double) purchase.getValue());
-        extract.setType(Extract.Type.DEPOSIT);
-        extract.setDescription("Purchase deposit made by pix");
-        extract.setDate(LocalDateTime.now());
-        extractRepository.save(extract);
+        Extract extractAdmin = new Extract();
+        extractAdmin.setAccount(accountAdmin);
+        extractAdmin.setValue((double) purchase.getValue());
+        extractAdmin.setType(Extract.Type.DEPOSIT);
+        extractAdmin.setDescription("Purchase deposit made by pix");
+        extractAdmin.setDate(LocalDateTime.now());
+        extractRepository.save(extractAdmin);
 
         codeRepository.deleteById(codePix.getId());
     }
