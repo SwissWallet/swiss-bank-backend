@@ -1,17 +1,12 @@
 package com.swiss.bank.web.controller;
 
+import com.swiss.bank.entity.CodePix;
 import com.swiss.bank.jwt.JwtUserDetails;
 import com.swiss.bank.service.CodePixService;
-import io.jsonwebtoken.Jwt;
-import jakarta.persistence.Entity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/codes")
@@ -30,4 +25,10 @@ public class CodePixController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{code}")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<CodePix> findByCode(@PathVariable String code){
+        CodePix codeValue = codePixService.findByCode(code);
+        return ResponseEntity.ok().body(codeValue);
+    }
 }

@@ -104,4 +104,12 @@ public class CodePixService {
 
         codeRepository.deleteById(codePix.getId());
     }
+
+    @Transactional(readOnly = true)
+    public CodePix findByCode(String code){
+        return codeRepository.findCodePixByCode(code)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Code pix not found. Please check the user ID or username and try again."))
+                );
+    }
 }
