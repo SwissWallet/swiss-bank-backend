@@ -39,4 +39,16 @@ public class ExtractService {
 
         return extractRepository.findAllByAccount(account);
     }
+
+    public void deleteAllByUser(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("User not found. Please check the user ID or username and try again."))
+                );
+        Account account = accountRepository.findByUser(user)
+                .orElseThrow(
+                        () -> new ObjectNotFoundException(String.format("Account not found. Please check the user ID or username and try again."))
+                );
+        extractRepository.deleteAllByAccount(account);
+    }
 }

@@ -21,13 +21,15 @@ public class UserService {
     private final CardService cardService;
     private final AccountService accountService;
     private final PurchaseService purchaseService;
+    private final ExtractService extractService;
 
-    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, CardService cardService, AccountService accountService, PurchaseService purchaseService) {
+    public UserService(IUserRepository userRepository, PasswordEncoder passwordEncoder, CardService cardService, AccountService accountService, PurchaseService purchaseService, ExtractService extractService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.cardService = cardService;
         this.accountService = accountService;
         this.purchaseService = purchaseService;
+        this.extractService = extractService;
     }
 
     @Transactional
@@ -57,8 +59,9 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id){
-        UserEntity userEntity = findById(id);
+    public void deleteUser(String username){
+        UserEntity userEntity = findByUsername(username);
+        extractService.deleteAllByUser(userEntity.getId());
         cardService.deleteByUser(userEntity.getId());
         accountService.deleteByUser(userEntity.getId());
         purchaseService.deleteByUser(userEntity.getId());
