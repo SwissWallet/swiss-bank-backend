@@ -31,6 +31,7 @@ public class AccountService {
         Account account = new Account();
         account.setAccountNumber(generateUniqueNumber());
         account.setUser(user);
+        account.setBalance(200);
         return accountRepository.save(account);
     }
 
